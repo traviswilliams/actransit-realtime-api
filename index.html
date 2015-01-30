@@ -312,7 +312,10 @@
                         alert(predictions);
                     })
                     .fail(function (er) {
-                        alert(er.status + ' - ' + er.responseText);
+                        if(er.status == 404)
+                            alert('No predictions for this stop.');
+                        else
+                            alert(er.status + ' - ' + er.responseText);
                     });
             };
 
