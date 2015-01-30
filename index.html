@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>AC Transit API Testing</title>
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <style>
+        body {
+            padding-top: 50px;
+            padding-bottom: 20px;
+        }
+
+        /* Set padding to keep content from hitting the edges */
+        .body-content {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Override the default bootstrap behavior where horizontal description lists 
+           will truncate terms that are too long to fit in the left column 
+        */
+        .dl-horizontal dt {
+            white-space: normal;
+        }
+
+        html, body, #mapDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        /* Set width on the form input elements since they're 100% wide by default */
+        input,
+        select,
+        textarea {
+            max-width: 280px;
+        }
+
+        #mapDiv {
+            height: 700px;
+        }
+
+        .options {
+            padding-top: 60px;
+            padding-bottom: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">ACTransit API Testing</a>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+
+        <div>
+            <div class="options">
+                <strong>Options</strong>
+
+                <div class="route">
+                    <div>
+                        <span>Schedules:</span>
+                        <select id="cmbScheduleType">
+                            <option value="">All</option>
+                            <option value="Weekday">Weekday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span>Route:</span>
+                        <select id="cmbRoutes"></select>
+                    </div>
+                    <div>
+                        <span>Trips:</span>
+                        <select id="cmbTrips"></select>
+                    </div>
+
+                    <div>
+                        <span class="label label-info">Right click on the map, and stops within this radius will appear</span><br />
+                        <span>Search Radius:</span>
+                        <input id="txtSearchRadius" type="text" value="1500" />
+                    </div>
+
+                    <button id="btnShowRoute">Show Route</button>
+                    <button id="btnShowStops">Show Stops</button>
+                    <button id="btnShowBuses">Show Buses</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button id="btnClear">Clear Everything</button>
+                </div>
+            </div>
+
+            <div id="mapDiv"></div>
+        </div>
+    </div>
+
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[YOUR KEY HERE]"></script>
+
+    <script type="text/javascript" src="Scripts/actransit.js"></script>
+    <script type="text/javascript" src="Scripts/actransitapi.js"></script>
+    <script type="text/javascript" src="Scripts/actransitmaps.js"></script>
+
+    <script type="text/javascript">
+        $.support.cors = true;
+
+        $(document).ready(function () {
+            var myMap = new actransit.maps.Map("mapDiv", "Content/Images/stopicon.png", "Content/Images/busicon.png");
+            myMap.init();
+
+            $("#cmbRoutes").change(function () {
+                var route = $("#cmbRoutes").val();
+                var scheduleType = $("#cmbScheduleType").val();
+
+                getTrips(route, null, scheduleType);
+            });
+
+            $("#cmbScheduleType").change(function () {
+                var route = $("#cmbRoutes").val();
+                var scheduleType = $("#cmbScheduleType").val();
+
+                getTrips(route, null, scheduleType);
+            });
+
+            $("#btnShowStops").click(function () {
+                var route = $("#cmbRoutes").val();
+                var trip = $("#cmbTrips").val();
+
+                getStops(route, trip);
+            });
+
+            $("#btnShowBuses").click(function () {
+                var route = $("#cmbRoutes").val();
+
+                getVehicles(route);
+            });
+
+            $("#btnShowRoute").click(function () {
+                var route = $("#cmbRoutes").val();
+                var trip = $("#cmbTrips").val();
+
+                getPattern(route, trip);
+            });
+
+            $("#btnClear").click(function () {
+                myMap.clearMarkers();
+                myMap.clearPatterns();
+            });
+
+            var getRoutes = function () {
+                $.getJSON(actransit.api.routeUrl())
+                    .done(function (results) {
+                        var optionHtml = "";
+                        $.each(results, function () {
+                            optionHtml += "<option value=\"" + this.Name + "\">" + this.Name + "</option>";
+                        });
+                        $("#cmbRoutes").html(optionHtml);
+                    })
+                    .fail(function (er) {
+                        $("#cmbRoutes").empty();
+                        if (er.status != 404)
+                            alert('Error retrieving routes: \r\n[' + er.status + '] - ' + er.responseText);
+                    })
+                    .always(function () {
+                        getTrips($("#cmbRoutes").val(), null, $("#cmbScheduleType").val());
+                    });
+            };
+
+            var getTrips = function (route, direction, scheduleType) {
+                $.getJSON(actransit.api.tripUrl(route, direction, scheduleType))
+                    .done(function (results) {
+                        var optionHtml = "";
+                        $.each(results, function () {
+                            optionHtml += "<option value=\"" + this.TripId + "\">" + this.TripId + " - " + this.StartTime.substring(11) + " - " + this.ScheduleType + " - " + this.Direction + "</option>";
+                        });
+                        $("#cmbTrips").html(optionHtml);
+                    })
+                    .fail(function (er) {
+                        $("#cmbTrips").empty();
+
+                        if (er.status != 404)
+                            alert('Error retrieving trips: \r\n[' + er.status + '] - ' + er.responseText);
+                    });
+            };
+
+            var getPattern = function (route, trip) {
+                if (!route || !trip) {
+                    alert('must specify a route and trip.');
+                    return;
+                };
+
+                myMap.clearPatterns();
+
+                $.getJSON(actransit.api.tripPatternUrl(route, trip))
+                    .done(function (results) {
+                        var coords = [];
+                        $.each(results, function () {
+                            coords.push({ lat: this.Latitude, lng: this.Longitude });
+                        });
+                        myMap.addPattern(trip, coords);
+                    })
+                    .fail(function (er) {
+                        if (er.status != 404)
+                            alert('Error retrieving pattern: \r\n[' + er.status + '] - ' + er.responseText);
+                    });
+            };
+
+            var getStops = function (route, trip) {
+                if (!route || !trip) {
+                    alert('must specify a route and trip.');
+                    return;
+                };
+
+                myMap.clearMarkers("stop");
+
+                $.getJSON(actransit.api.tripStopsUrl(route, trip))
+                    .done(function (results) {
+                        myMap.setCenter(results[0].Latitude, results[0].Longitude);
+                        $.each(results, function () {
+                            myMap.addStop(this, stopMarkerClicked);
+                        });
+                    })
+                    .fail(function (er) {
+                        if (er.status != 404)
+                            alert('Error retrieving stops: \r\n[' + er.status + '] - ' + er.responseText);
+                    });
+            };
+
+            var getStopsInProximity = function (lat, lng, searchRadius) {
+                $.getJSON(actransit.api.stopsInProximity(lat, lng, searchRadius))
+                    .done(function (results) {
+                        myMap.clearMarkers("overlay");
+                        myMap.clearMarkers("stop");
+                        myMap.addCircle(lat, lng, searchRadius);
+                        $.each(results, function () {
+                            myMap.addStop(this, stopMarkerClicked);
+                        });
+                    })
+                    .fail(function (er) {
+                        if (er.status == 404)
+                            alert('No stops within ' + searchRadius + ' feet of center.');
+                        else
+                            alert(er.status + " - " + er.responseText);
+                    });
+            };
+
+            var getVehicles = function (route) {
+                myMap.clearMarkers("vehicle");
+
+                $.getJSON(actransit.api.routeVehicleUrl(route))
+                    .done(function (results) {
+                        $.each(results, function () {
+                            myMap.addVehicle(this, vehicleMarkerClicked);
+                        });
+                    })
+                    .fail(function (er) {
+                        if (er.status != 404)
+                            alert('Error retrieving vehicles: \r\n[' + er.status + '] - ' + er.responseText);
+                    });
+            };
+
+            var vehicleMarkerClicked = function (vehicle) {
+                if (!vehicle)
+                    return;
+
+                var vehicleInfo =
+                    "Vehicle: " + vehicle.VehicleId + "\r\n" +
+                        "Max Capacity: " + (vehicle.MaxPassengerCapacity ? vehicle.MaxPassengerCapacity : "N/A") + "\r\n" +
+                        "Wheelchair Accesible: " + (vehicle.WheelchairAccessible ? "Yes" : "No") + "\r\n" +
+                        "Heading: " + vehicle.Heading + "\r\n" +
+                        "Current Latitude: " + vehicle.Latitude + "\r\n" +
+                        "Current Longitude: " + vehicle.Longitude + "\r\n" +
+                        "Time Last Reported: " + vehicle.TimeLastReported;
+
+                alert(vehicleInfo);
+            };
+
+            var stopMarkerClicked = function (stop) {
+                if (!stop)
+                    return;
+
+                $.getJSON(actransit.api.stopPredictionsUrl(stop.StopId))
+                    .done(function (results) {
+                        var predictions = "Stop Predictions: \r\n";
+                        var lastRoute = "";
+                        $.each(results, function () {
+                            if (lastRoute != this.RouteName) {
+                                lastRoute = this.RouteName;
+                                predictions += "\r\nRoute: " + this.RouteName + ":\r\n";
+                            }
+                            var delay = this.PredictedDelayInSeconds;
+                            var delayText = (delay / 60) + (delay > 0 ? " minutes late" : " minutes early");
+                            predictions += this.PredictedDeparture + " (" + delayText + ")";
+                            predictions += "\r\n";
+                        });
+                        alert(predictions);
+                    })
+                    .fail(function (er) {
+                        alert(er.status + ' - ' + er.responseText);
+                    });
+            };
+
+            getRoutes();
+
+            myMap.setMapRightClicked(function (event) {
+                var clickPoint = event.latLng;
+                getStopsInProximity(clickPoint.lat(), clickPoint.lng(), $("#txtSearchRadius").val());
+            });
+        });
+
+    </script>
+
+</body>
+</html>
