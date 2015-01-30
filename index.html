@@ -228,6 +228,7 @@
                 };
 
                 myMap.clearMarkers("stop");
+                myMap.clearMarkers("overlay");
 
                 $.getJSON(actransit.api.tripStopsUrl(route, trip))
                     .done(function (results) {
