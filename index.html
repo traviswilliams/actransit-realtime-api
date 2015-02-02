@@ -102,7 +102,13 @@
                 <label class="col-md-2 control-label" for="txtSearchRadius">Search Radius:</label>
                 <div class="col-md-10">
                     <input id="txtSearchRadius" class="col-md-1 form-control" type="text" value="1500" />
-                    <span class="col-md-6"><em>Right click on the map, and stops within this radius will appear</em></span><br />
+                    <div class="col-md-4">
+                        <span class="control-label"><em>Right click on the map, and stops within this radius will appear</em></span>
+                    </div>
+                    <div class="col-md-3 form-inline">
+                        <input type="checkbox" id="chkRefresh" value="1" class="form-control">&nbsp;
+                        <label class="control-label" for="chkRefresh">Auto-Refresh Vehicles</label>
+                    </div>
                 </div>
             </div>
 
@@ -132,6 +138,7 @@
     <script type="text/javascript" src="Scripts/actransitmaps.js"></script>
 
     <script type="text/javascript">
+        var refreshTimer;
         $.support.cors = true;
 
         $(document).ready(function () {
@@ -175,6 +182,17 @@
             $("#btnClear").click(function () {
                 myMap.clearMarkers();
                 myMap.clearPatterns();
+            });
+
+            $("#chkRefresh").change(function() { 
+                var isChecked = $("#chkRefresh").is(":checked");
+
+                if(isChecked) {
+                    refreshTimer = setInterval(function() { refreshVehicles(); }, 5000);
+                }
+                else {
+                    clearInterval(refreshTimer);
+                }
             });
 
             var getRoutes = function () {
@@ -334,6 +352,12 @@
                         else
                             alert(er.status + ' - ' + er.responseText);
                     });
+            };
+
+            var refreshVehicles = function() { 
+                var route = $("#cmbRoutes").val();
+                if(route)
+                    getVehicles(route);
             };
 
             getRoutes();
