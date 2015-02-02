@@ -69,47 +69,56 @@
             </div>
         </div>
     </div>
+
     <div class="container body-content">
 
-        <div>
-            <div class="options">
-                <strong>Options</strong>
-
-                <div class="route">
-                    <div>
-                        <span>Schedules:</span>
-                        <select id="cmbScheduleType">
+        <div class="options form-horizontal" role="form">
+            
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="cmbScheduleType">Schedule Type:</label>
+                <div class="col-md-10">
+                    <div class="col-md-2">
+                        <select id="cmbScheduleType" class="form-control">
                             <option value="">All</option>
                             <option value="Weekday">Weekday</option>
                             <option value="Saturday">Saturday</option>
                             <option value="Sunday">Sunday</option>
                         </select>
                     </div>
-                    <div>
-                        <span>Route:</span>
-                        <select id="cmbRoutes"></select>
-                    </div>
-                    <div>
-                        <span>Trips:</span>
-                        <select id="cmbTrips"></select>
-                    </div>
 
-                    <div>
-                        <span class="label label-info">Right click on the map, and stops within this radius will appear</span><br />
-                        <span>Search Radius:</span>
-                        <input id="txtSearchRadius" type="text" value="1500" />
+                    <label class="col-md-1 control-label" for="cmbRoutes">Route:</label>
+                    <div class="col-md-2">
+                        <select id="cmbRoutes" class="form-control"></select>               
                     </div>
-
-                    <button id="btnShowRoute">Show Route</button>
-                    <button id="btnShowStops">Show Stops</button>
-                    <button id="btnShowBuses">Show Buses</button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button id="btnClear">Clear Everything</button>
+                    
+                    <label class="col-md-1 control-label" for="cmbTrips">Trips:</label>
+                    <div class="col-md-6">
+                        <select id="cmbTrips" class="form-control"></select>
+                    </div>
                 </div>
             </div>
 
-            <div id="mapDiv"></div>
+            <div class="form-group">
+                <label class="col-md-2 control-label" for="txtSearchRadius">Search Radius:</label>
+                <div class="col-md-10">
+                    <input id="txtSearchRadius" class="col-md-1 form-control" type="text" value="1500" />
+                    <span class="col-md-6"><em>Right click on the map, and stops within this radius will appear</em></span><br />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button id="btnShowRoute" class="btn btn-default">Show Route</button>
+                    <button id="btnShowStops" class="btn btn-default">Show Stops</button>
+                    <button id="btnShowBuses" class="btn btn-default">Show Buses</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button id="btnClear" class="btn btn-danger pull-right">Clear Everything</button>
+                </div>
+            </div>
+
         </div>
+
+        <div id="mapDiv"></div>
     </div>
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -201,6 +210,8 @@
 
                         if (er.status != 404)
                             alert('Error retrieving trips: \r\n[' + er.status + '] - ' + er.responseText);
+                        else 
+                            $("#cmbTrips").html("<option value=\"\" selected=\"selected\">No trips for route...</option>");
                     });
             };
 
