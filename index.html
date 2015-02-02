@@ -200,7 +200,7 @@
                     .done(function (results) {
                         var optionHtml = "";
                         $.each(results, function () {
-                            optionHtml += "<option value=\"" + this.Name + "\">" + this.Name + "</option>";
+                            optionHtml += "<option value=\"" + this.RouteId + "\">" + this.RouteId + "</option>";
                         });
                         $("#cmbRoutes").html(optionHtml);
                     })
