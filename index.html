@@ -113,12 +113,18 @@
             </div>
 
             <div class="form-group">
-                <div class="col-md-12">
+                <div class="col-md-4">
                     <button id="btnShowRoute" class="btn btn-default">Show Route</button>
                     <button id="btnShowStops" class="btn btn-default">Show Stops</button>
                     <button id="btnShowBuses" class="btn btn-default">Show Buses</button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button id="btnClear" class="btn btn-danger pull-right">Clear Everything</button>
+                </div>
+
+                <div class="col-md-4">
+                    <button id="btnShowStopsNearMe" class="btn btn-default">Show Stops Near Me</button>
+                </div>
+
+                <div class="col-md-2 pull-right">
+                    <button id="btnClear" class="btn btn-danger">Clear Everything</button>
                 </div>
             </div>
 
@@ -131,7 +137,7 @@
 
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgQiYtYrIMk85eXgWwgdbZvx9dPnLN6Jo"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[YOUR API KEY]"></script>
 
     <script type="text/javascript" src="Scripts/actransit.js"></script>
     <script type="text/javascript" src="Scripts/actransitapi.js"></script>
@@ -166,6 +172,20 @@
                 getStops(route, trip);
             });
 
+            $("#btnShowStopsNearMe").click(function() { 
+                if(!navigator.geolocation) {
+                    alert('Your browser does not support geolocation.');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(function(pos) { 
+                    getStopsInProximity(pos.coords.latitude, pos.coords.longitude, $("#txtSearchRadius").val());
+                }, function(err) { 
+                    if(err.code == err.PERMISSION_DENIED)
+                        alert('This functionality is not available because you have not shared your location.');
+                });
+            });
+
             $("#btnShowBuses").click(function () {
                 var route = $("#cmbRoutes").val();
 
@@ -188,7 +208,7 @@
                 var isChecked = $("#chkRefresh").is(":checked");
 
                 if(isChecked) {
-                    refreshTimer = setInterval(function() { refreshVehicles(); }, 5000);
+                    refreshTimer = setInterval(function() { refreshVehicles(); }, 30000);
                 }
                 else {
                     clearInterval(refreshTimer);
