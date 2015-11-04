@@ -3,7 +3,7 @@ actransit.api = actransit.api || {};
 
 actransit.api.config = {
     baseUri: "http://api.actransit.org/transit/",
-    token: "57CED0B60CA2C2A20CA76C19E9F5B4F1"
+    token: "[YOUR ACTRANSIT API TOKEN HERE]"
 };
 
 actransit.api.routeUrl = function () {
