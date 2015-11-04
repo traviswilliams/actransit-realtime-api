@@ -2,57 +2,53 @@
 actransit.api = actransit.api || {};
 
 actransit.api.config = {
-    baseUri: "http://testapi.actransit.org/transit/"
-    //baseUri: "http://localhost:64643/"
+    baseUri: "http://api.actransit.org/transit/",
+    token: "57CED0B60CA2C2A20CA76C19E9F5B4F1"
 };
 
 actransit.api.routeUrl = function () {
-    return actransit.api.config.baseUri + "routes";
+    return actransit.api.config.baseUri + "routes?token=" + actransit.api.config.token;
 };
 
 actransit.api.directionUrl = function (route) {
-    return actransit.api.config.baseUri + "route/" + route + "/directions";
+    return actransit.api.config.baseUri + "route/" + route + "/directions?token=" + actransit.api.config.token;
 };
 
 actransit.api.tripUrl = function (route, direction, scheduleType) {
-    var url = actransit.api.config.baseUri + "route/" + route + "/trips";
-
-    if (direction && scheduleType)
-        url += "/?direction=" + direction + "&scheduleType" + scheduleType;
-    else if (direction)
-        url += "/?direction=" + direction;
-    else if (scheduleType)
-        url += "/?scheduleType=" + scheduleType;
+    var url = actransit.api.config.baseUri + "route/" + route + "/trips" + "/?token=" + actransit.api.config.token;
 
     if (direction && direction.trim() !== "")
-        url += "/" + direction;
+        url += "&direction=" + direction;
+    else if (scheduleType)
+        url += "&scheduleType=" + scheduleType;
+
     return url;
 };
 
 actransit.api.routeVehicleUrl = function (route) {
-    return actransit.api.config.baseUri + "route/" + route + "/vehicles";
+    return actransit.api.config.baseUri + "route/" + route + "/vehicles?token=" + actransit.api.config.token;
 };
 
 actransit.api.vehicleUrl = function(vehicle) {
-    return actransit.api.config.baseUri + "vehicle/" + vehicle;
+    return actransit.api.config.baseUri + "vehicle/" + vehicle + "?token=" + actransit.api.config.token;
 };
 
 actransit.api.tripPatternUrl = function(route, trip) {
-    return actransit.api.config.baseUri + "route/" + route + "/trip/" + trip + "/pattern";
+    return actransit.api.config.baseUri + "route/" + route + "/trip/" + trip + "/pattern?token=" + actransit.api.config.token;
 };
 
 actransit.api.tripStopsUrl = function (route, trip) {
-    return actransit.api.config.baseUri + "route/" + route + "/trip/" + trip + "/stops";
+    return actransit.api.config.baseUri + "route/" + route + "/trip/" + trip + "/stops?token=" + actransit.api.config.token;
 };
 
 actransit.api.allStopsUrl = function () {
-    return actransit.api.config.baseUri + "stops";
+    return actransit.api.config.baseUri + "stops?token=" + actransit.api.config.token;
 };
 
 actransit.api.stopPredictionsUrl = function (stop) {
-    return actransit.api.config.baseUri + "stops/" + stop + "/predictions";
+    return actransit.api.config.baseUri + "stops/" + stop + "/predictions?token=" + actransit.api.config.token;
 };
 
 actransit.api.stopsInProximity = function (latitude, longitude, distance) {
-    return actransit.api.config.baseUri + "stops/" + latitude + "/" + longitude + "/" + distance;
+    return actransit.api.config.baseUri + "stops/" + latitude + "/" + longitude + "/" + distance + "?token=" + actransit.api.config.token;
 };

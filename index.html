@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>AC Transit API Testing</title>
 
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
@@ -20,8 +20,8 @@
             padding-right: 15px;
         }
 
-        /* Override the default bootstrap behavior where horizontal description lists 
-           will truncate terms that are too long to fit in the left column 
+        /* Override the default bootstrap behavior where horizontal description lists
+           will truncate terms that are too long to fit in the left column
         */
         .dl-horizontal dt {
             white-space: normal;
@@ -73,7 +73,7 @@
     <div class="container body-content">
 
         <div class="options form-horizontal" role="form">
-            
+
             <div class="form-group">
                 <label class="col-md-2 control-label" for="cmbScheduleType">Schedule Type:</label>
                 <div class="col-md-10">
@@ -88,9 +88,9 @@
 
                     <label class="col-md-1 control-label" for="cmbRoutes">Route:</label>
                     <div class="col-md-2">
-                        <select id="cmbRoutes" class="form-control"></select>               
+                        <select id="cmbRoutes" class="form-control"></select>
                     </div>
-                    
+
                     <label class="col-md-1 control-label" for="cmbTrips">Trips:</label>
                     <div class="col-md-6">
                         <select id="cmbTrips" class="form-control"></select>
@@ -137,7 +137,7 @@
 
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[YOUR API KEY]"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=[YOUR GOOGLE MAPS API KEY]"></script>
 
     <script type="text/javascript" src="Scripts/actransit.js"></script>
     <script type="text/javascript" src="Scripts/actransitapi.js"></script>
@@ -172,15 +172,15 @@
                 getStops(route, trip);
             });
 
-            $("#btnShowStopsNearMe").click(function() { 
+            $("#btnShowStopsNearMe").click(function() {
                 if(!navigator.geolocation) {
                     alert('Your browser does not support geolocation.');
                     return;
                 }
 
-                navigator.geolocation.getCurrentPosition(function(pos) { 
+                navigator.geolocation.getCurrentPosition(function(pos) {
                     getStopsInProximity(pos.coords.latitude, pos.coords.longitude, $("#txtSearchRadius").val());
-                }, function(err) { 
+                }, function(err) {
                     if(err.code == err.PERMISSION_DENIED)
                         alert('This functionality is not available because you have not shared your location.');
                 });
@@ -204,7 +204,7 @@
                 myMap.clearPatterns();
             });
 
-            $("#chkRefresh").change(function() { 
+            $("#chkRefresh").change(function() {
                 var isChecked = $("#chkRefresh").is(":checked");
 
                 if(isChecked) {
@@ -248,7 +248,7 @@
 
                         if (er.status != 404)
                             alert('Error retrieving trips: \r\n[' + er.status + '] - ' + er.responseText);
-                        else 
+                        else
                             $("#cmbTrips").html("<option value=\"\" selected=\"selected\">No trips for route...</option>");
                     });
             };
@@ -374,7 +374,7 @@
                     });
             };
 
-            var refreshVehicles = function() { 
+            var refreshVehicles = function() {
                 var route = $("#cmbRoutes").val();
                 if(route)
                     getVehicles(route);
